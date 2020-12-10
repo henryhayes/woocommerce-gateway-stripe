@@ -610,7 +610,8 @@ class WC_Gateway_Stripe extends WC_Stripe_Payment_Gateway {
 			if ( $intent ) {
 				$intent = $this->update_existing_intent( $intent, $order, $prepared_source );
 			} else {
-				$intent = $this->create_intent( $order, $prepared_source );
+				$should_save_source = $this->should_save_payment_method( $prepared_source->source_object, new WC_Stripe_Customer( get_current_user_id() ), $force_save_source );
+				$intent             = $this->create_intent( $order, $prepared_source, $should_save_source );
 			}
 
 			// Confirm the intent after locking the order to make sure webhooks will not interfere.

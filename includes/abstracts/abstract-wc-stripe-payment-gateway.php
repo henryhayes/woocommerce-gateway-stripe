@@ -1067,9 +1067,10 @@ abstract class WC_Stripe_Payment_Gateway extends WC_Payment_Gateway_CC {
 	 *
 	 * @param WC_Order $order           The order that is being paid for.
 	 * @param object   $prepared_source The source that is used for the payment.
+	 * @param bool     $save_source     Whether the payment method is being saved for future use or not.
 	 * @return array                    The arguments for the request.
 	 */
-	public function generate_create_intent_request( $order, $prepared_source ) {
+	public function generate_create_intent_request( $order, $prepared_source, $save_source ) {
 		// The request for a charge contains metadata for the intent.
 		$full_request = $this->generate_payment_request( $order, $prepared_source );
 
@@ -1084,6 +1085,10 @@ abstract class WC_Stripe_Payment_Gateway extends WC_Payment_Gateway_CC {
 				'card',
 			),
 		);
+
+		if ( $save_source ) {
+			$request['setup_future_usage'] = 'off_session';
+		}
 
 		if ( $prepared_source->customer ) {
 			$request['customer'] = $prepared_source->customer;
@@ -1166,10 +1171,12 @@ abstract class WC_Stripe_Payment_Gateway extends WC_Payment_Gateway_CC {
 	 *
 	 * @param WC_Order $order           The order that is being paid for.
 	 * @param object   $prepared_source The source that is used for the payment.
+	 * @param bool     $save_source     Whether the payment method is being saved for future use or not.
 	 * @return object                   An intent or an error.
+	 * @throws WC_Stripe_Exception
 	 */
-	public function create_intent( $order, $prepared_source ) {
-		$request = $this->generate_create_intent_request( $order, $prepared_source );
+	public function create_intent( $order, $prepared_source, $save_source ) {
+		$request = $this->generate_create_intent_request( $order, $prepared_source, $save_source );
 
 		// Create an intent that awaits an action.
 		$intent = WC_Stripe_API::request( $request, 'payment_intents' );
