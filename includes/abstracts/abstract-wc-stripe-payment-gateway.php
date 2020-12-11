@@ -41,6 +41,18 @@ abstract class WC_Stripe_Payment_Gateway extends WC_Payment_Gateway_CC {
 	}
 
 	/**
+	 * Hides the save to account checkbox.
+	 *
+	 * @since 4.1.0
+	 */
+	public function save_payment_method_hidden() {
+		printf(
+			'<input id="wc-%1$s-new-payment-method" name="wc-%1$s-new-payment-method" type="hidden" value="true" />',
+			esc_attr( $this->id )
+		);
+	}
+
+	/**
 	 * Checks to see if request is invalid and that
 	 * they are worth retrying.
 	 *
